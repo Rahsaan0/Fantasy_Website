@@ -1,16 +1,17 @@
 import { useState } from "react";
 import Axios from "axios";
+import LoginPage from "./LoginPage";
 
-const TeamPage = () => {
+const TestingPage = () => {
   const [name, setName] = useState("");
-  const [age, setAge] = useState(0);
+  const [pos, setPos] = useState(0);
   const [playersList, setPlayersList] = useState([]);
-  const [newAge, setNewAge] = useState(0); 
+  const [newPos, setNewPos] = useState(0); 
 
   const addPlayer = () => {
     Axios.post("http://localhost:3001/create", {
       name: name,
-      age: age,
+      pos: pos,
     }).then(() => {
       console.log("success");
     });
@@ -27,24 +28,24 @@ const TeamPage = () => {
       });
   };
 
-const updatePlayerAge = (id) => {
+const updatePlayerPos = (id) => {
   Axios.put("http://localhost:3001/update", {
     id: id,
-    age: newAge,
+    pos: newPos,
   })
     .then((response) => {
       setPlayersList(
         playersList.map((val) => {
-          return val.id === id ? { ...val, age: newAge } : val;
+          return val.id === id ? { ...val, pos: newPos } : val;
         })
       );
     })
     .catch((error) => {
-      console.error("There was an error updating the player's age:", error);
+      console.error("There was an error updating the player's pos:", error);
     });
 };
 
-  const deleteEmployee = (id) => {
+  const deletePlayer = (id) => {
     Axios.delete(`http://localhost:3001/delete/${id}`).then((response) => {
       setPlayersList(playersList.filter((val) => {
         return val.id !== id
@@ -63,11 +64,11 @@ const updatePlayerAge = (id) => {
             setName(event.target.value);
           }}
         />
-        <label>Age: </label>
+        <label>pos: </label>
         <input
           type="number"
           onChange={(event) => {
-            setAge(event.target.value);
+            setPos(event.target.value);
           }}
         />
         <button onClick={addPlayer}>Add Player</button>
@@ -83,19 +84,30 @@ const updatePlayerAge = (id) => {
               {/* Added unique key prop */}
               <div>
                 <h3>Name: {val.name}</h3>
-                <h3>Age: {val.age}</h3>
+                <h3>pos: {val.pos}</h3>
               </div>
               <div>
                 <input
-                  type="number" // Changed to number to ensure age is a number
-                  placeholder="New Age"
+                  type="number" // Changed to number to ensure pos is a number
+                  placeholder="New pos"
                   onChange={(event) => {
-                    setNewAge(parseInt(event.target.value, 10)); // Parse to integer
+                    setNewPos(parseInt(event.target.value, 10)); // Parse to integer
                   }}
                 />
-                <button onClick={() => updatePlayerAge(val.id)}> Update</button>
-                <button onClick={ () => {deleteEmployee(val.id)}}>Delete</button>
+                <button onClick={() => updatePlayerPos(val.id)}> Update</button>
+                <button
+                  onClick={() => {
+                    deletePlayer(val.id);
+                  }}
+                >
+                  Delete
+                </button>
               </div>
+            
+              
+              <div className="Login">
+                <LoginPage/>
+                </div>
             </div>
           );
         })}
@@ -104,4 +116,4 @@ const updatePlayerAge = (id) => {
   );
 };
 
-export default TeamPage;
+export default TestingPage;

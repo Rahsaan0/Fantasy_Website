@@ -6,9 +6,21 @@ function Navigation() {
   return (
     <nav>
       <ul>
-        <li><Link to="/">Home</Link></li>
-        <li><Link to="/team">Team Page</Link></li>
-        <li><Link to="/testing"> TestingPage</Link></li>
+        <li>
+          <Link to="/">Home</Link>
+        </li>
+        <li>
+          <Link to="/team">Team Page</Link>
+        </li>
+        <li>
+          <Link to="/testing"> TestingPage</Link>
+        </li>
+        <li>
+          <Link to="/login"> LoginPage</Link>
+        </li>
+        <li>
+          <Link to="/signup"> SignupPage</Link>
+        </li>
         {/* For future pages*/}
       </ul>
     </nav>
