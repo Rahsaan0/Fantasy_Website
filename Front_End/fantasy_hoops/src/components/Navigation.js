@@ -8,6 +8,7 @@ function Navigation() {
       <ul>
         <li><Link to="/">Home</Link></li>
         <li><Link to="/team">Team Page</Link></li>
+        <li><Link to="/testing"> TestingPage</Link></li>
         {/* For future pages*/}
       </ul>
     </nav>
