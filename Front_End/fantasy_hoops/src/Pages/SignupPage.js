@@ -1,6 +1,6 @@
-// SignupPage.js
 import React, { useState } from "react";
 import axios from "axios";
+import "../Styles/SignupStyle.css"; // Import the CSS styles
 
 const SignupPage = () => {
   const [email, setEmail] = useState("");
@@ -24,7 +24,7 @@ const SignupPage = () => {
   };
 
   return (
-    <div>
+    <div className="signup-form">
       <h2>Sign Up</h2>
       <form onSubmit={handleSignup}>
         <label>
