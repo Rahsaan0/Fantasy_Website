@@ -21,6 +21,9 @@ function Navigation() {
         <li>
           <Link to="/signup"> SignupPage</Link>
         </li>
+        <li>
+          <Link to="/search"> SearchPage</Link>
+        </li>
         {/* For future pages*/}
       </ul>
     </nav>

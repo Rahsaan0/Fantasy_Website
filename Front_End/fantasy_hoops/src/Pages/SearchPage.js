@@ -1,19 +1,15 @@
-import React, { useState } from "react";
+import React, { useState,  } from "react";
 import axios from "axios";
 
-const TeamPage = () => {
+const SearchPage = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [playerIdInput, setPlayerIdInput] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
   const [playerInfo, setPlayerInfo] = useState([]);
-  const [playerStats, setPlayerStats] = useState([]);
   const [error, setError] = useState("");
 
-  const getPlayerId = () => {
+  const getPlayerInfo = () => {
     if (!firstName.trim() && !lastName.trim()) {
-      setError("Please enter a player's name.");
+      setError("Please enter a player's full name.");
       return;
     }
 
@@ -27,6 +23,8 @@ const TeamPage = () => {
             id: player.id,
             firstName: player.first_name,
             lastName: player.last_name,
+            position: player.position,
+            teamName: player.team ? player.team.full_name : "No team", // Handle cases where player might not have a team
           }));
           setPlayerInfo(info);
           setError("");
@@ -36,93 +34,66 @@ const TeamPage = () => {
         }
       })
       .catch((error) => {
-        console.error("There was an error fetching the player stats:", error);
-        setError("Failed to fetch player stats.");
-        setPlayerInfo([]);
+        console.error("There was an error fetching the player info:", error);
+        setError("Failed to fetch player info.");
       });
   };
 
-  const getPlayerStatsById = async () => {
-    if (!playerIdInput.trim()) {
-      setError("Please enter a player's ID.");
-      return;
-    }
-
-    try {
-      const response = await axios.get(
-        `http://localhost:3001/api/playerStatsById?id=${playerIdInput}&startDate=${startDate}&endDate=${endDate}`
-      );
-      console.log(response.data);
-      setPlayerStats(response.data.data);
-      setError("");
-    } catch (error) {
-      console.error("Error fetching player stats:", error);
-      setError("Failed to fetch player stats.");
-      setPlayerStats([]);
-    }
+  
+  const addPlayerToDatabase = (player) => {
+    axios
+      .post("http://localhost:3001/createPlayer", {
+        name: `${player.firstName} ${player.lastName}`,
+        position: player.position,
+        team: player.teamName,
+        stats: {},
+      })
+      .then(() => {
+        alert("Player added to database successfully");
+        setError(""); // Clear any previous errors
+      })
+      .catch((error) => {
+        console.error("Error adding player to database:", error);
+        setError("Failed to add player to database.");
+      });
   };
 
   return (
     <div>
-      <div>
-        <h2>Find Player ID</h2>
-        <input
-          type="text"
-          placeholder="Enter player's first name"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Enter player's last name"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-        />
-        <button onClick={getPlayerId}>Find ID</button>
-        {error && <p className="error">{error}</p>}
-        {playerInfo.length > 0 && (
-          <div>
-            <h3>Player Information:</h3>
-            {playerInfo.map((player, index) => (
-              <p key={index}>
-                ID: {player.id}, Name: {player.firstName} {player.lastName}
+      <h2>Add Player to Team</h2>
+      <input
+        type="text"
+        placeholder="Enter player's first name"
+        value={firstName}
+        onChange={(e) => setFirstName(e.target.value)}
+      />
+      <input
+        type="text"
+        placeholder="Enter player's last name"
+        value={lastName}
+        onChange={(e) => setLastName(e.target.value)}
+      />
+      <button onClick={getPlayerInfo}>Search Player</button>
+      {error && <p className="error">{error}</p>}
+
+      {playerInfo.length > 0 && (
+        <div>
+          <h3>Player Information:</h3>
+          {playerInfo.map((player) => (
+            <div key={player.id}>
+              <p>
+                {player.firstName} {player.lastName} - {player.teamName} -
+                {player.position}
               </p>
-            ))}
-          </div>
-        )}
-      </div>
-      <div>
-        <h2>Get Player Stats by ID</h2>
-        <input
-          type="text"
-          placeholder="Enter player's ID"
-          value={playerIdInput}
-          onChange={(e) => setPlayerIdInput(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Start Date (YYYY-MM-DD)"
-          value={startDate}
-          onChange={(e) =>
-            setStartDate(e.target.value) & setEndDate(e.target.value)
-          }
-        />
-        <button onClick={getPlayerStatsById}>Get Stats</button>
-        {error && <p className="error">{error}</p>}
-        {playerStats.length > 0 && (
-          <div>
-            <h3>Player Stats:</h3>
-            {playerStats.map((stat, index) => (
-              <p key={index}>
-                Game ID: {stat.game.id}, Points: {stat.pts}, Rebounds:{" "}
-                {stat.reb}, Assists: {stat.ast}
-              </p>
-            ))}
-          </div>
-        )}
-      </div>
+              <button onClick={() => addPlayerToDatabase(player)}>
+                Add to My Database
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
-export default TeamPage;
+export default SearchPage;

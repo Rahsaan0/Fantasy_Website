@@ -1,13 +1,26 @@
-import PlayerCard from './PlayerCard';
+import React from "react";
+import { FaTimes } from "react-icons/fa";
 
-const PlayerCards = ({ players, onDelete }) => {
+const PlayerCard = ({ player, onDelete }) => {
   return (
-    <>
-      {players.map((player) => (
-        <PlayerCard key={player.id} player={player} onDelete={onDelete} />
-      ))}
-    </>
-  )
-}
+    <div className="player-card">
+      <h3>
+        {player.name}{" "}
+        <FaTimes
+          style={{ color: "red", cursor: "pointer" }}
+          onClick={() => onDelete(player.id)}
+        />
+      </h3>
+      <p>Position: {player.position}</p>
+      <p>Points: {player.stats.pts}</p>
+      <p>Rebounds: {player.stats.reb}</p>
+      <p>Assists: {player.stats.ast}</p>
+      <p>Steals: {player.stats.stl}</p>
+      <p>Blocks: {player.stats.blk}</p>
+      <p>Turnovers: {player.stats.turnover}</p>
+      {/* Add other player details as needed */}
+    </div>
+  );
+};
 
-export default PlayerCards;
+export default PlayerCard;

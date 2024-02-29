@@ -1,28 +1,36 @@
-import { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect } from "react";
 
-export const UserContext = createContext(null);
+export const UserContext = createContext();
 
-export const UserProvider = ({ children }) => {
+const UserProvider = ({ children }) => {
+  // Initialize state with localStorage to persist the login state
   const [user, setUser] = useState(() => {
-    // Try to get the user from localStorage
-    const localUserData = localStorage.getItem("user");
-    return localUserData ? JSON.parse(localUserData) : null;
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  // Persist user changes to localStorage
-  useEffect(() => {
-    localStorage.setItem("user", JSON.stringify(user));
-  }, [user]);
+  // When user logs in, set the user in both state and localStorage
+  const login = (userData) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
 
-  const signOut = () => {
+  // When user logs out, clear the user from both state and localStorage
+  const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
   };
 
+  // The value provided to the context consumers
+  const contextValue = {
+    user,
+    login,
+    logout,
+  };
+
   return (
-    <UserContext.Provider value={{ user, setUser, signOut }}>
-      {children}
-    </UserContext.Provider>
+    <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
   );
 };
 
+export default UserProvider;

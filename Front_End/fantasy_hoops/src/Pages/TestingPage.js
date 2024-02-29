@@ -1,99 +1,64 @@
-import React, { useState, useContext } from "react";
-import axios from "axios";
-import { UserContext } from "../context/UserContext";
+import React, { useState, useEffect } from "react";
 
 const TestingPage = () => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [playerInfo, setPlayerInfo] = useState([]);
-  const [error, setError] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const [players, setPlayers] = useState([]);
+  const [playerInfo, setPlayerInfo] = useState({});
 
-  const { user } = useContext(UserContext); // Assuming 'user' has 'teamId'
-
-  const getPlayerInfo = () => {
-    if (!firstName.trim() && !lastName.trim()) {
-      setError("Please enter a player's full name.");
+  useEffect(() => {
+    if (inputValue.trim() === "") {
+      setPlayers([]); // Clear suggestions if input is empty
       return;
     }
 
-    axios
-      .get(
-        `http://localhost:3001/api/players?first_name=${firstName}&last_name=${lastName}`
-      )
-      .then((response) => {
-        if (response.data && response.data.data) {
-          const info = response.data.data.map((player) => ({
-            id: player.id,
-            firstName: player.first_name,
-            lastName: player.last_name,
-            teamName: player.team ? player.team.full_name : "No team", // Handle cases where player might not have a team
-          }));
-          setPlayerInfo(info);
-          setError("");
-        } else {
-          setError("No player found with that name.");
-          setPlayerInfo([]);
-        }
-      })
-      .catch((error) => {
-        console.error("There was an error fetching the player info:", error);
-        setError("Failed to fetch player info.");
-      });
-  };
+    const fetchPlayers = async () => {
+      try {
+        const response = await fetch(
+          `/databasePlayers?name=${encodeURIComponent(inputValue)}`
+        );
+        const data = await response.json();
+        setPlayers(data);
+      } catch (error) {
+        console.error("Error fetching players:", error);
+      }
+    };
 
-  const addPlayerToTeam = (playerId) => {
-    if (!user || !user.teamId) {
-      setError("You must be logged in to add a player to your team.");
-      return;
+    const delayDebounce = setTimeout(() => {
+      fetchPlayers();
+    }, 250);
+
+    return () => clearTimeout(delayDebounce);
+  }, [inputValue]);
+
+  const handleSelection = (value) => {
+    setInputValue(value); // Update the input value to the selected name
+    const selectedPlayer = players.find((player) => player.name === value);
+    if (selectedPlayer) {
+      setPlayerInfo(selectedPlayer); // Update playerInfo with the selected player object
     }
-
-    axios
-      .post("http://localhost:3001/addPlayerToTeam", {
-        userId: user.id, // Ensure this is the correct user identifier
-        teamId: user.teamId,
-        playerData: { id: playerId },
-      })
-      .then(() => {
-        alert("Player added to team successfully");
-        setError(""); // Clear any previous errors
-      })
-      .catch((error) => {
-        console.error("Error adding player to team:", error);
-        setError("Failed to add player to team.");
-      });
   };
 
   return (
     <div>
-      <h2>Add Player to Team</h2>
+      <h2>Search for a Player</h2>
       <input
         type="text"
-        placeholder="Enter player's first name"
-        value={firstName}
-        onChange={(e) => setFirstName(e.target.value)}
+        list="playersDataList"
+        value={inputValue}
+        onInput={(e) => handleSelection(e.target.value)}
+        placeholder="Search for player"
       />
-      <input
-        type="text"
-        placeholder="Enter player's last name"
-        value={lastName}
-        onChange={(e) => setLastName(e.target.value)}
-      />
-      <button onClick={getPlayerInfo}>Search Player</button>
-      {error && <p className="error">{error}</p>}
-
-      {playerInfo.length > 0 && (
+      <datalist id="playersDataList">
+        {players.map((player, index) => (
+          <option key={index} value={player.name} />
+        ))}
+      </datalist>
+      {playerInfo && (
         <div>
           <h3>Player Information:</h3>
-          {playerInfo.map((player) => (
-            <div key={player.id}>
-              <p>
-                {player.firstName} {player.lastName} - {player.teamName}
-              </p>
-              <button onClick={() => addPlayerToTeam(player.id)}>
-                Add to My Team
-              </button>
-            </div>
-          ))}
+          <p>Name: {playerInfo.name}</p>
+          <p>Position: {playerInfo.position}</p>
+          <p>Team: {playerInfo.nbaTeam}</p>
         </div>
       )}
     </div>
@@ -101,3 +66,45 @@ const TestingPage = () => {
 };
 
 export default TestingPage;
+
+
+
+
+
+
+
+
+
+
+
+
+// const addPlayerToTeam = (player) => {
+//   if (!user || !user.teamId) {
+//     console.log(user.teamId);
+//     setError("You must be logged in to add a player to your team.");
+//     return;
+//   }
+
+//   axios
+//     .post(
+//       "http://localhost:3001/addPlayerToTeam",
+//       {
+//         userId: user.id, // Ensure this is the correct user identifier
+//         teamId: user.teamId,
+//         playerData: player, // Send the whole player object
+//       },
+//       {
+//         headers: {
+//           Authorization: `Bearer ${localStorage.getItem("token")}`, // Replace with your token key
+//         },
+//       }
+//     )
+//     .then(() => {
+//       alert("Player added to team successfully");
+//       setError(""); // Clear any previous errors
+//     })
+//     .catch((error) => {
+//       console.error("Error adding player to team:", error);
+//       setError("Failed to add player to team.");
+//     });
+// };
