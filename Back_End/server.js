@@ -65,43 +65,6 @@ app.get("/databasePlayers", (req, res) => {
   );
 });
 
-
-const saltRounds = 10;
-
-app.post("/signup", async (req, res) => {
-  const { username, email, password } = req.body;
-  try {
-    const hash = await bcrypt.hash(password, saltRounds);
-    db.query(
-      "INSERT INTO Users (username, email, passwordHash, teamID) VALUES (?, ?, ?, ?)",
-      [username, email, hash, 'DEFAULT_TEAM_ID'], // Replace 'DEFAULT_TEAM_ID' with actual default or logic to determine teamID
-      (error, results) => {
-        if (error) {
-          console.error("Error signing up the user", error);
-          res.status(500).send("Error signing up the user");
-        } else {
-          // Assuming teamID needs to be fetched after insertion, adjust as needed.
-          db.query("SELECT teamID FROM Users WHERE userID = ?", [results.insertId], (err, result) => {
-            if (err) {
-              console.error("Error fetching user teamID", err);
-              res.status(500).send("Error fetching user teamID");
-            } else {
-              res.status(201).json({
-                message: "User created successfully",
-                userId: results.insertId,
-                teamId: result[0].teamID // Adjust based on actual logic if default is not used
-              });
-            }
-          });
-        }
-      }
-    );
-  } catch (err) {
-    console.error("Error encrypting the password", err);
-    res.status(500).send("Error encrypting the password");
-  }
-});
-
 //APIS
 app.get("/api/players", async (req, res) => {
   const firstName = req.query.first_name;
@@ -119,7 +82,6 @@ app.get("/api/players", async (req, res) => {
       Authorization: "8f623bc4-e213-4735-aaf6-c954f7831a71", // Uncomment if needed
     },
   };
-
   try {
     console.log("api Hit");
     const response = await axios.request(options);
@@ -129,49 +91,12 @@ app.get("/api/players", async (req, res) => {
     res.status(500).send("Error retrieving player data");
   }
 });
-
-//Searchs by a player's Idapp.post("/signup", async (req, res) => {
-  const { username, email, password } = req.body;
-  try {
-    const hash = await bcrypt.hash(password, saltRounds);
-    db.query(
-      "INSERT INTO Users (username, email, passwordHash, teamID) VALUES (?, ?, ?, ?)",
-      [username, email, hash, 'DEFAULT_TEAM_ID'], // Replace 'DEFAULT_TEAM_ID' with actual default or logic to determine teamID
-      (error, results) => {
-        if (error) {
-          console.error("Error signing up the user", error);
-          res.status(500).send("Error signing up the user");
-        } else {
-          // Assuming teamID needs to be fetched after insertion, adjust as needed.
-          db.query("SELECT teamID FROM Users WHERE userID = ?", [results.insertId], (err, result) => {
-            if (err) {
-              console.error("Error fetching user teamID", err);
-              res.status(500).send("Error fetching user teamID");
-            } else {
-              res.status(201).json({
-                message: "User created successfully",
-                userId: results.insertId,
-                teamId: result[0].teamID // Adjust based on actual logic if default is not used
-              });
-            }
-          });
-        }
-      }
-    );
-  } catch (err) {
-    console.error("Error encrypting the password", err);
-    res.status(500).send("Error encrypting the password");
-  }
-});
-
 app.get("/api/playerStatsById", async (req, res) => {
   const playerId = req.query.id;
   const startDate = req.query.startDate;
-
   if (!playerId) {
     return res.status(400).send("Player ID is required");
   }
-
   const options = {
     method: "GET",
     url: `https://api.balldontlie.io/v1/stats`,
@@ -185,7 +110,6 @@ app.get("/api/playerStatsById", async (req, res) => {
       Authorization: "8f623bc4-e213-4735-aaf6-c954f7831a71" 
     },
   };
-
   try {
     const response = await axios.request(options);
     res.json(response.data);
@@ -208,7 +132,7 @@ app.post("/addPlayerToTeam", async (req, res) => {
         console.log(err);
         res.status(500).send("Database query error");
       } else if (teams.length > 0) {
-        // User owns the team, proceed to add player
+        // if user owns the team thanadd player
         try {
           // Add player data to the Players table
           const insertPlayerResult = await new Promise((resolve, reject) => {
@@ -252,7 +176,6 @@ app.post("/addPlayerToTeam", async (req, res) => {
 });
 
 // Authentication
-
 app.post("/auth/google", async (req, res) => {
   console.log("server called");
   try {
@@ -308,61 +231,48 @@ app.post("/auth/google", async (req, res) => {
     res.status(500).json({ error: error.toString() });
   }
 });
-app.post("/login", async (req, res) => {
-  console.log("server called");
-  try {
-    const { code } = req.body;
-    const response = await axios.post("https://oauth2.googleapis.com/token", {
-      code,
-      client_id: CLIENT_ID,
-      client_secret: client_secret,
-      redirect_uri: "http://localhost:3000",
-      grant_type: "authorization_code",
-    });
-    console.log("generating token");
-    const tokens = response.data;
-    // Verify the ID token and get user info
-    const ticket = await client.verifyIdToken({
-      idToken: tokens.id_token,
-      audience: CLIENT_ID,
-    });
 
-    const payload = ticket.getPayload();
+const saltRounds = 10;
+
+app.post("/signup", async (req, res) => {
+  const { username, email, password, teamName } = req.body; // Assuming teamName is part of the request
+  try {
+    const hash = await bcrypt.hash(password, saltRounds);
     db.query(
-      "SELECT * FROM Users WHERE googleID = ?",
-      [payload.sub],
-      (err, result) => {
-        if (err) {
-          console.error("Database query error", err);
-          res.status(500).send("Error checking user existence");
-        } else if (result.length === 0) {
-          // Insert new user
+      "CALL CreateUser(?, ?, ?, ?)",
+      [username, email, hash, teamName],
+      (error, results) => {
+        if (error) {
+          console.error("Error during user signup", error);
+          res.status(500).send("Error during user signup");
+        } else {
+          // Assuming the stored procedure is successful, but we need to fetch the user ID and team ID separately
           db.query(
-            "INSERT INTO Users (username, email, googleID) VALUES (?, ?, ?)",
-            [payload.name, payload.email, payload.sub],
-            (error, results) => {
-              if (error) {
-                console.error("Error inserting user into database", error);
-                res.status(500).send("Error creating new user");
+            "SELECT userID, teamID FROM Users JOIN Teams ON Users.userID = Teams.userID WHERE email = ?",
+            [email],
+            (err, result) => {
+              if (err || result.length === 0) {
+                console.error("Error fetching user details", err);
+                res.status(500).send("Error fetching user details");
               } else {
-                res.json({
-                  userId: results.insertId,
+                res.status(201).json({
+                  message: "User created successfully",
+                  userId: result[0].userID,
                   teamId: result[0].teamID,
                 });
               }
             }
           );
-        } else {
-          // User exists, return existing ID and return teamID
-          res.json({ userId: result[0].userID, teamId: result[0].teamID });
         }
       }
     );
-  } catch (error) {
-    console.log("Authentication process failed", error);
-    res.status(500).json({ error: error.toString() });
+  } catch (err) {
+    console.error("Error encrypting the password", err);
+    res.status(500).send("Error encrypting the password");
   }
 });
+
+
 
 app.listen(3001, () => {
   console.log("Your server is running on port 3001");

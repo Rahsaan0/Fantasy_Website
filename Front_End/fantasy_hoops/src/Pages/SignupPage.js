@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "../Styles/SignupStyle.css"; // Import the CSS styles
+import "../Styles/SignupStyle.css"; 
 
 const SignupPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [teamName, setTeamName] = useState(""); 
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -14,12 +15,11 @@ const SignupPage = () => {
         email,
         password,
         username,
+        teamName, 
       });
       console.log(response.data);
-      // Handle response, redirect or inform user of successful signup
     } catch (error) {
       console.error(error.response.data);
-      // Handle error, show user error message
     }
   };
 
@@ -49,6 +49,15 @@ const SignupPage = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+          />
+        </label>
+        <label>
+          {" "}
+          Team Name:
+          <input
+            type="text"
+            value={teamName}
+            onChange={(e) => setTeamName(e.target.value)}
           />
         </label>
         <button type="submit">Sign Up</button>
