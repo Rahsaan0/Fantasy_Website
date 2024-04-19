@@ -1,0 +1,54 @@
+.team-page {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    padding: 1rem;
+}
+.player-position-select {
+    padding: .5rem;
+    margin-left: 10px;
+    background-color: #333;
+    /* Dark background */
+    color: white;
+    /* Light text */
+    border: 1px solid #555;
+    /* Slight border for depth */
+    border-radius: 4px;
+    cursor: pointer;
+    /* To indicate this is a dropdown */
+}
+
+.player-position-select:hover {
+    background-color: #454545;
+    /* Slightly lighter on hover */
+}
+
+.player-position-select:focus {
+    outline: none;
+    /* Remove default focus outline */
+    border-color: #FFA500;
+    /* High-contrast border color for focus */
+}
+
+/* Optional: custom arrow using background-image */
+.player-position-select {
+    -webkit-appearance: none;
+    /* Removes default chrome and safari style */
+    -moz-appearance: none;
+    /* Removes default style Firefox */
+    appearance: none;
+    /* Removes default style */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+    background-repeat: no-repeat;
+    background-position: right .7em top 50%;
+    background-size: .65em auto;
+}
+
+/* Styling for options (supported in some browsers) */
+.player-position-select option {
+    background: #333;
+    /* Dark background */
+    color: white;
+    /* Light text */
+}

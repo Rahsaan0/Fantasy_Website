@@ -1,0 +1,46 @@
+/* HomeStyle.css */
+.App {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #121212;
+    color: #ffffff;
+}
+
+.App-header {
+    background-color: #1e1e1e;
+    text-align: center;
+}
+
+h1 {
+    color: #FFA500;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.container {
+    padding: 1rem;
+    max-width: 960px;
+}
+
+.main-image {
+    background: url('../photos/dribblingBasketball.jpg') no-repeat center center;
+    background-size: contain;
+    height: 300px;
+    margin-bottom: 2rem;
+}
+
+.container h3 {
+    color: #FFA500;
+}
+
+.container p,
+.container li {
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.container ul {
+    list-style: inside;
+}
+

@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
 import Axios from "axios";
 import { UserContext } from "../context/UserContext";
 import "../Styles/LoginStyle.css";
@@ -37,11 +38,12 @@ const LoginPage = () => {
     console.error("Logout failed: ", error);
   };
 
-  const NormLogin = async (code) => {
+  const NormLogin = async () => {
     try {
       console.log("accessing data");
       const { data } = await Axios.post(`http://localhost:3001/login`, {
-        code,
+        email, 
+        password, 
       });
       login(data);
     } catch (error) {
@@ -49,6 +51,7 @@ const LoginPage = () => {
     }
   };
 
+  // Corrected button onClick event
   return (
     <div className="login-form">
       <h2>Login</h2>
@@ -66,11 +69,10 @@ const LoginPage = () => {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-        />{" "}
+        />
       </div>
-
       <div>
-        <button on onClick={NormLogin}>
+        <button onClick={NormLogin}> 
           Login
         </button>
         <GoogleLoginButton onSuccess={onLoginSuccess} onError={onError} />
@@ -79,8 +81,14 @@ const LoginPage = () => {
           onError={onLogoutFailure}
         />
       </div>
+      <div className="navigation-buttons">
+        <p>Don't have a profile? Click here!</p>
+        <Link to="/signup" className="navigate-signup-btn">
+          Sign Up
+        </Link>
+      </div>
     </div>
   );
-};
+}
 
 export default LoginPage;

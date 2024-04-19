@@ -1,0 +1,50 @@
+nav {
+  width: 100%;
+  background-color: #1e1e1e;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+nav ul li {
+  float: right;
+}
+
+nav ul li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+nav ul li a:hover,
+nav ul li a.active {
+  background-color: #FFA500;
+  color: #121212;
+}
+
+nav ul li.brand {
+  float: left;
+}
+
+nav ul li.brand a {
+  font-weight: bold;
+  color: #FFA500;
+}
+
+@media (max-width: 768px) {
+  nav ul {
+    text-align: center;
+  }
+
+  nav ul li {
+    float: none;
+  }
+}

@@ -1,32 +1,30 @@
-import React from "react";
+import React, { useContext } from "react";
 import { googleLogout } from "@react-oauth/google";
+import { UserContext } from "../context/UserContext";
 
 const GoogleLogoutButton = ({ onLogoutSuccess, onLogoutFailure }) => {
-  const logout = async () => {
+  const { logout } = useContext(UserContext);
+
+  const handleLogout = async () => {
     try {
-      // Correct keys are used here
-      localStorage.removeItem("user");
-
-      // If you have other keys for tokens or data, remove them as well
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-
-      // Logout from Google
       await googleLogout();
+
+      logout();
+
+      console.log("Logout successful, local storage cleared");
 
       if (onLogoutSuccess) {
         onLogoutSuccess();
       }
-      console.log("Logout successful, local storage cleared");
     } catch (error) {
+      console.error("Logout failed:", error);
       if (onLogoutFailure) {
         onLogoutFailure(error);
       }
-      console.error("Logout failed:", error);
     }
   };
 
-  return <button onClick={logout}>Logout from Google</button>;
+  return <button onClick={handleLogout}>Logout</button>;
 };
 
 export default GoogleLogoutButton;

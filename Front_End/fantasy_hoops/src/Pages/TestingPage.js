@@ -1,13 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import PlayerCard from "../components/PlayerCard";
+import { UserContext } from "../context/UserContext";
+import axios from 'axios';
+
 
 const TestingPage = () => {
   const [inputValue, setInputValue] = useState("");
   const [players, setPlayers] = useState([]);
   const [playerInfo, setPlayerInfo] = useState({});
+  const [playerStats, setPlayerStats] = useState({});
+  const { user } = useContext(UserContext);
 
   useEffect(() => {
     if (inputValue.trim() === "") {
-      setPlayers([]); // Clear suggestions if input is empty
+      setPlayers([]); 
       return;
     }
 
@@ -31,13 +37,32 @@ const TestingPage = () => {
   }, [inputValue]);
 
   const handleSelection = (value) => {
-    setInputValue(value); // Update the input value to the selected name
+    setInputValue(value);
     const selectedPlayer = players.find((player) => player.name === value);
     if (selectedPlayer) {
-      setPlayerInfo(selectedPlayer); // Update playerInfo with the selected player object
+      setPlayerInfo(selectedPlayer);
+      setPlayerStats(JSON.parse(selectedPlayer.stats))
     }
   };
 
+  const addPlayerToTeam = async (playerId) => {
+    if (!user || !user.teamId) {
+      alert('You must have a team to add players.');
+      return;
+    }
+    try {
+      await axios.post("/addPlayerToTeam", {
+        teamId: user.teamId,
+        playerId: playerId,
+      });
+      alert('Player added to the team successfully');
+    } catch (error) {
+      console.error('Failed to add player to team:', error);
+      alert('Failed to add player to team');
+    }
+  };
+  
+  
   return (
     <div>
       <h2>Search for a Player</h2>
@@ -53,58 +78,18 @@ const TestingPage = () => {
           <option key={index} value={player.name} />
         ))}
       </datalist>
-      {playerInfo && (
-        <div>
-          <h3>Player Information:</h3>
-          <p>Name: {playerInfo.name}</p>
-          <p>Position: {playerInfo.position}</p>
-          <p>Team: {playerInfo.nbaTeam}</p>
-        </div>
+      {playerInfo && playerStats && (
+        <>
+          <PlayerCard player={{ ...playerInfo, stats: playerStats }} />
+          <button onClick={() => addPlayerToTeam(playerInfo.idPlayers)}>
+            Add Player to Team
+          </button>
+        </>
       )}
     </div>
   );
+
 };
 
 export default TestingPage;
 
-
-
-
-
-
-
-
-
-
-
-
-// const addPlayerToTeam = (player) => {
-//   if (!user || !user.teamId) {
-//     console.log(user.teamId);
-//     setError("You must be logged in to add a player to your team.");
-//     return;
-//   }
-
-//   axios
-//     .post(
-//       "http://localhost:3001/addPlayerToTeam",
-//       {
-//         userId: user.id, // Ensure this is the correct user identifier
-//         teamId: user.teamId,
-//         playerData: player, // Send the whole player object
-//       },
-//       {
-//         headers: {
-//           Authorization: `Bearer ${localStorage.getItem("token")}`, // Replace with your token key
-//         },
-//       }
-//     )
-//     .then(() => {
-//       alert("Player added to team successfully");
-//       setError(""); // Clear any previous errors
-//     })
-//     .catch((error) => {
-//       console.error("Error adding player to team:", error);
-//       setError("Failed to add player to team.");
-//     });
-// };

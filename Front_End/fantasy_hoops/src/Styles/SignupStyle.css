@@ -1,16 +1,22 @@
+/* signupStyle.css */
 .signup-form {
     padding: 2rem;
-    background: gray;
+    background: #1e1e1e;
+    /* Consistent dark background for the form */
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    /* Stronger shadow for depth */
     width: 100%;
     max-width: 400px;
-    margin: auto;
-    /* Center the form vertically and horizontally */
+    margin: 40px auto;
+    /* Increased margin for better centering */
 }
 
 .signup-form h2 {
+    color: #FFA500;
+    /* Orange color for headers to match the theme */
     margin-bottom: 1.5rem;
+    /* Uniform margin-bottom for visual consistency */
 }
 
 .signup-form form {
@@ -19,21 +25,31 @@
 }
 
 .signup-form label {
-    display: flex;
-    flex-direction: column;
+    color: #fff;
+    /* Ensuring label text is visible against dark background */
+    margin-bottom: .5rem;
+    /* Space between label and input */
 }
 
 .signup-form input {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
+    background-color: #333;
+    /* Dark background for inputs for contrast */
+    color: #fff;
+    /* Light text color for better readability */
+    padding: 0.75rem;
+    /* Sufficient padding for better user interaction */
+    border: 1px solid #555;
+    /* Slightly darker border for depth */
     border-radius: 4px;
     margin-top: 0.5rem;
 }
 
 .signup-form button {
-    padding: 0.5rem;
+    padding: 0.75rem;
+    /* Uniform padding for all buttons */
     border: none;
     background-color: #007bff;
+    /* Consistent primary button color */
     color: white;
     cursor: pointer;
     border-radius: 4px;
@@ -41,4 +57,24 @@
 
 .signup-form button:hover {
     background-color: #0056b3;
+    /* Darker shade on hover for button interaction */
+}
+
+/* Additional styles for better spacing and visual hierarchy */
+.signup-form input:not(:last-child) {
+    margin-bottom: 1rem;
+}
+
+.signup-form button:not(:last-child) {
+    margin-bottom: 1rem;
+}
+
+/* Error Message Styles */
+.error {
+    color: #e74c3c;
+    /* Error color for better visibility */
+    margin-top: 1rem;
+    /* Space above the error message */
+    text-align: center;
+    /* Center the error message */
 }

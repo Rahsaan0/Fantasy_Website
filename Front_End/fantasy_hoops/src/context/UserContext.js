@@ -21,11 +21,19 @@ const UserProvider = ({ children }) => {
     localStorage.removeItem("user");
   };
 
-  // The value provided to the context consumers
+  const setTeamId = (newTeamId) => {
+    setUser((currentUser) => {
+      const updatedUser = { ...currentUser, teamId: newTeamId };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      return updatedUser;
+    });
+  };
+
   const contextValue = {
     user,
     login,
     logout,
+    setTeamId,
   };
 
   return (

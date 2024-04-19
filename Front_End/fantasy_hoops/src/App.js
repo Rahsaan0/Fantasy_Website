@@ -6,6 +6,7 @@ import TestingPage from "./Pages/TestingPage";
 import LoginPage from "./Pages/LoginPage";
 import SignupPage from "./Pages/SignupPage";
 import SearchPage from "./Pages/SearchPage";
+import GamesPage from "./Pages/GamesPage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import UserProvider from "./context/UserContext"; // No braces for default export
 import styles from "./Styles/GlobalStyles.css";
@@ -30,6 +31,7 @@ const App = () => {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/search" element={<SearchPage />} />
+              <Route path = "/games" element= {<GamesPage />} />
             </Routes>
           </div>
         </Router>

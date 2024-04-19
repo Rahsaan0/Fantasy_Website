@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "../Styles/SignupStyle.css"; 
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
+
 
 const SignupPage = () => {
   const [email, setEmail] = useState("");
@@ -62,6 +64,12 @@ const SignupPage = () => {
         </label>
         <button type="submit">Sign Up</button>
       </form>
+      <div className="navigation-buttons">
+        <p> Need to return to login?</p>
+        <Link to="/login" className="navigate-signup-btn">
+          Login
+        </Link>
+      </div>
     </div>
   );
 };

@@ -1,95 +1,102 @@
-import React, { useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import axios from "axios";
+import PlayerCard from "../components/PlayerCard"; // Assuming this is your player card component
+import { UserContext } from "../context/UserContext";
+import "../Styles/TeamPageStyles.css";
 
 const TeamPage = () => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [date, setDate] = useState(""); // Single date for simplicity
-  const [playerStats, setPlayerStats] = useState([]);
-  const [error, setError] = useState("");
+  const [players, setPlayers] = useState([]);
+  const { user } = useContext(UserContext);
 
-  const getPlayerStatsByNameAndDate = async () => {
-    if (!firstName.trim() && !lastName.trim()) {
-      setError("Please enter a player's full name.");
-      return;
+  useEffect(() => {
+    if (user && user.teamId) {
+      fetchPlayers();
     }
-    if (!date.trim()) {
-      setError("Please select a date.");
-      return;
-    }
+  }, [user]);
 
+  const fetchPlayers = async () => {
     try {
-      // Find player ID using their name
-      const playersResponse = await axios.get(
-        `http://localhost:3001/api/players?first_name=${firstName}&last_name=${lastName}`
+      const response = await axios.get(
+        `http://localhost:3001/getTeamPlayers?teamId=${user.teamId}`
       );
-
-      if (
-        playersResponse.data &&
-        playersResponse.data.data &&
-        playersResponse.data.data.length > 0
-      ) {
-        // Take playerid of the first player that fits into search
-        const playerId = playersResponse.data.data[0].id;
-
-        // Fetch the stats using the player ID and the specified date
-        const statsResponse = await axios.get(
-          `http://localhost:3001/api/playerStatsById?id=${playerId}&startDate=${date}&endDate=${date}` // Using the same date for start and end for simplicity
-        );
-
-        if (statsResponse.data && statsResponse.data.data) {
-          setPlayerStats(statsResponse.data.data);
-          setError("");
-        } else {
-          setError("No stats found for this player on the selected date.");
-          setPlayerStats([]);
-        }
-      } else {
-        setError("No player found with that name.");
-        setPlayerStats([]);
-      }
+      const playersData = response.data.map((player) => ({
+        ...player,
+        stats: JSON.parse(player.stats),
+        position: player.position || "Bench",
+      }));
+      setPlayers(playersData);
     } catch (error) {
-      console.error("There was an error fetching the player stats:", error);
-      setError("Failed to fetch player stats.");
-      setPlayerStats([]);
+      console.error("There was an error fetching the players:", error);
+    }
+  };
+  const handleDeletePlayer = async (playerId) => {
+  try {
+    await axios.delete('/deletePlayerFromTeam', { data: { teamId: user.teamId, playerId } });
+    console.log('Player removed from the team successfully');
+
+    // Update the players list to reflect the deletion
+    setPlayers(prevPlayers => prevPlayers.filter(player => player.idPlayers !== playerId));
+  } catch (error) {
+    console.error('Failed to remove player from team:', error);
+  }
+};
+
+
+  const handlePositionChange = async (playerId, newPosition) => {
+    try {
+      await axios.post("/setPlayerPosition", {
+        teamId: user.teamId,
+        playerId,
+        newPosition,
+      });
+      // Update the local state to reflect the change
+      setPlayers((prevPlayers) =>
+        prevPlayers.map((player) =>
+          player.idPlayers === playerId
+            ? { ...player, position: newPosition }
+            : player
+        )
+      );
+      console.log("Player position updated successfully");
+    } catch (error) {
+      console.error("Failed to update player position:", error);
     }
   };
 
   return (
     <div>
-      <h2>Search Player Stats by Name and Date</h2>
-      <input
-        type="text"
-        placeholder="Enter player's first name"
-        value={firstName}
-        onChange={(e) => setFirstName(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Enter player's last name"
-        value={lastName}
-        onChange={(e) => setLastName(e.target.value)}
-      />
-      <input
-        type="date"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-        placeholder="Select Date"
-      />
-      <button onClick={getPlayerStatsByNameAndDate}>Get Stats</button>
-      {error && <p className="error">{error}</p>}
-      {playerStats.length > 0 && (
-        <div>
-          <h3>Player Stats:</h3>
-          {playerStats.map((stat, index) => (
-            <p key={index}>
-              Player ID: {stat.player.id}, Points: {stat.pts}, Rebounds: {stat.reb},
-              Assists: {stat.ast}, Steals: {stat.stl}, Blocks: {stat.blk},
-              Turnovers: {stat.turnover}
-            </p>
-          ))}
-        </div>
-      )}
+      <h2>Team Roster</h2>
+      <div className="team-page">
+        {players.map((player) => (
+          <div
+            key={player.idPlayers}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "10px",
+            }}
+          >
+            <PlayerCard player={player} onDelete={handleDeletePlayer} />
+            <select
+              className="player-position-select"
+              value={player.position}
+              onChange={(e) =>
+                handlePositionChange(player.idPlayers, e.target.value)
+              }
+              style={{ marginLeft: "10px" }}
+            >
+              <option value="PG">PG</option>
+              <option value="SG">SG</option>
+              <option value="SF">SF</option>
+              <option value="PF">PF</option>
+              <option value="C">C</option>
+              <option value="Bench1">Bench 1</option>
+              <option value="Bench2">Bench 2</option>
+              <option value="Bench3">Bench 3</option>
+            </select>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
